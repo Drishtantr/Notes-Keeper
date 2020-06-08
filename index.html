@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>Notes App</title>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="index.html">Notes Keeper</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Home</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <div class="container">
+        <h1>Add Notes To Database Using API</h1>
+     <form id="itemForm">
+       <div class="form-group">
+         <label>Text</label>
+         <input type="text" id="text" class="form-control">
+       </div>
+       <div class="form-group">
+         <label>Body</label>
+         <textarea id="body" class="form-control"></textarea>
+       </div>
+       <input type="submit" value="Submit" class="btn btn-primary">
+     </form>
+     <hr>
+        <ul id="items" class="list-group"></ul>
+      </div>
+
+    <script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        getItems();
+  
+        // Submit event
+        $('#itemForm').on('submit', function(e){
+          e.preventDefault();
+  
+          let text = $('#text').val();
+          let body = $('#body').val();
+  
+          addItem(text, body);
+        });
+  
+        // Delete event
+        $('body').on('click', '.deleteLink', function(e){
+          e.preventDefault();
+  
+          let id = $(this).data('id');
+  
+          deleteItem(id);
+        });
+  
+        // Delete item through api
+        function deleteItem(id){
+          $.ajax({
+            method:'POST',
+            url:'http://manager.test/api/items/'+id,
+            data: {_method: 'DELETE'}
+          }).done(function(item){
+            alert('Note Removed');
+            location.reload();
+          });
+        }
+  
+        // Insert items using api
+        function addItem(text, body){
+          $.ajax({
+            method:'POST',
+            url:'http://manager.test/api/items',
+            data: {text: text, body: body}
+          }).done(function(item){
+            alert('Note added');
+            location.reload();
+          });
+        }
+  
+        // Get items from API
+        function getItems(){
+          $.ajax({
+            url:'http://manager.test/api/items'
+          }).done(function(items){
+            let output = '';
+            $.each(items, function(key, item){
+              output += `
+                <li class="list-group-item">
+                  <strong>${item.text}: </strong>${item.body} <a href="#" class="deleteLink" data-id="${item.id}">Delete</a>
+                </li>
+              `;
+            });
+            $('#items').append(output);
+          });
+        }
+      });
+    </script>
+
+</body>
+</html>
